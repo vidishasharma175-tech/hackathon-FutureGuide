@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Job Matcher — FutureGuide</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="container" style="padding-top:40px">
+    <a href="/">← Home</a>
+    <h1>Job Matcher</h1>
+    <p class="small">Find roles aligned to your skills and get recommended next steps.</p>
+    <form id="jmForm" class="form-compact">
+      <label class="label">Current skills (comma)</label>
+      <input id="jm_skills" placeholder="e.g. Python, SQL, ML" />
+      <label class="label">Desired role</label>
+      <input id="jm_role" placeholder="e.g. Data Scientist" />
+      <button class="btn btn-primary" id="jmSubmit">Find jobs</button>
+    </form>
+    <div id="jmResult" style="margin-top:16px"></div>
+  </div>
+  <script src="/js/tools.js" defer></script>
+  <script>
+    document.getElementById('jmForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const skills = document.getElementById('jm_skills').value;
+      const role = document.getElementById('jm_role').value;
+      const out = document.getElementById('jmResult'); out.textContent='Searching...';
+      try{
+        const data = await postJSON('/api/job-matcher', {skills, role});
+        out.innerHTML='';
+        const list = data.results || data.matches || data.jobs || [];
+        if (!list.length) out.textContent='No jobs returned';
+        else{
+          const c = document.createElement('div'); c.className='card';
+          list.slice(0,8).forEach(it=>{ const d = document.createElement('div'); d.style.padding='8px 0'; d.innerHTML = `<strong>${it.title||it.role||'Role'}</strong><div class='small'>${it.company||it.org||''} • Score: ${it.score||it.match||''}</div>`; c.appendChild(d); });
+          out.appendChild(c);
+        }
+      }catch(err){ out.textContent='Error fetching jobs'; console.error(err); }
+    });
+  </script>
+</body>
+</html>

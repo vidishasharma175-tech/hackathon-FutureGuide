@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Stream Selector — FutureGuide</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="container" style="padding-top:40px">
+    <a href="/">← Home</a>
+    <h1>Stream Selector</h1>
+    <p class="small">Answer a few quick questions to get a recommended study stream.</p>
+    <form id="ssForm" class="form-compact">
+      <label class="label">Preferred subjects</label>
+      <input id="ss_subjects" placeholder="e.g. Math, Physics" />
+      <label class="label">Interests / career focus</label>
+      <input id="ss_interest" placeholder="e.g. Data Science" />
+      <label class="label">Academic strength (1-10)</label>
+      <input id="ss_strength" placeholder="7" />
+      <button class="btn btn-primary" id="ssSubmit">Find my stream</button>
+    </form>
+    <div id="ssResult" style="margin-top:16px"></div>
+  </div>
+  <script src="/js/tools.js" defer></script>
+  <script>
+    document.getElementById('ssForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const subjects = document.getElementById('ss_subjects').value;
+      const interest = document.getElementById('ss_interest').value;
+      const strength = document.getElementById('ss_strength').value;
+      const out = document.getElementById('ssResult');
+      out.textContent = 'Thinking...';
+      try{
+        const data = await postJSON('/api/stream-selector', {subjects, interest, strength});
+        displayResult(out, data);
+      }catch(err){
+        out.textContent = 'Error fetching suggestion (see console)'; console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>

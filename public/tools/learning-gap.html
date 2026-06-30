@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Learning Gap — FutureGuide</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="container" style="padding-top:40px">
+    <a href="/">← Home</a>
+    <h1>Learning Gap Analyzer</h1>
+    <p class="small">Short assessment to identify gaps and recommended learning path.</p>
+    <form id="lgForm" class="form-compact">
+      <label class="label">Topic / Skill</label>
+      <input id="lg_topic" placeholder="e.g. Linear Algebra" />
+      <label class="label">Self-rated proficiency (1-10)</label>
+      <input id="lg_level" placeholder="5" />
+      <button class="btn btn-primary" id="lgSubmit">Assess</button>
+    </form>
+    <div id="lgResult" style="margin-top:16px"></div>
+  </div>
+  <script src="/js/tools.js" defer></script>
+  <script>
+    document.getElementById('lgForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const topic = document.getElementById('lg_topic').value;
+      const level = document.getElementById('lg_level').value;
+      const out = document.getElementById('lgResult'); out.textContent='Assessing...';
+      try{
+        const data = await postJSON('/api/learning-gap-analyser', {topic, level});
+        // expect { recommended: [...], details: '...' }
+        out.innerHTML='';
+        const rec = data.recommended || data.plan || [];
+        if (!rec.length) out.textContent = data.details || 'No plan returned';
+        else{
+          const c = document.createElement('div'); c.className='card';
+          rec.forEach(r=>{ const d = document.createElement('div'); d.style.padding='8px 0'; d.innerHTML = `<strong>${r.title||r.module}</strong><div class='small'>${r.note||r.reason||''}</div>`; c.appendChild(d); });
+          out.appendChild(c);
+        }
+      }catch(err){ out.textContent='Error assessing'; console.error(err); }
+    });
+  </script>
+</body>
+</html>

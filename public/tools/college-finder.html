@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>College Finder — FutureGuide</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="container" style="padding-top:40px">
+    <a href="/">← Home</a>
+    <h1>College Finder</h1>
+    <p class="small">Search and match colleges to your profile.</p>
+    <form id="cfForm" class="form-compact">
+      <label class="label">Preferred course / stream</label>
+      <input id="cf_course" placeholder="e.g. Computer Science" />
+      <label class="label">Budget (annual, INR)</label>
+      <input id="cf_budget" placeholder="e.g. 200000" />
+      <label class="label">Location preference</label>
+      <input id="cf_location" placeholder="e.g. Delhi" />
+      <button class="btn btn-primary" id="cfSubmit">Find colleges</button>
+    </form>
+    <div id="cfResult" style="margin-top:16px"></div>
+  </div>
+  <script src="/js/tools.js" defer></script>
+  <script>
+    document.getElementById('cfForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const course = document.getElementById('cf_course').value;
+      const budget = document.getElementById('cf_budget').value;
+      const location = document.getElementById('cf_location').value;
+      const out = document.getElementById('cfResult'); out.textContent='Searching...';
+      try{
+        const data = await postJSON('/api/college-finder', {course,budget,location});
+        // For college finder expect { results: [ {name,score,reason} ] }
+        out.innerHTML='';
+        const list = data.results || data.matches || [];
+        if (!list.length) out.textContent='No matches returned';
+        else{
+          const ul = document.createElement('div');
+          ul.className='card';
+          list.slice(0,8).forEach(it=>{
+            const d = document.createElement('div'); d.style.padding='10px 0';
+            d.innerHTML = `<strong>${it.name||it.college||'Unknown'}</strong> <div class='small'>Score: ${it.score||it.match||'-'}</div><div class='small'>${it.reason||it.details||''}</div>`;
+            ul.appendChild(d);
+          });
+          out.appendChild(ul);
+        }
+      }catch(err){ out.textContent='Error fetching colleges'; console.error(err); }
+    });
+  </script>
+</body>
+</html>

@@ -1,8 +1,6 @@
 /*
- * FutureGuide - Main Application Entry Point
- * Enhanced to serve a polished frontend from /public
- */
-
+  Update main.js to add broader parsing and mock fallback for the quick form
+*/
 require('dotenv').config();
 
 const express = require('express');
@@ -42,10 +40,10 @@ app.get('/health', (req, res) => {
 });
 app.get('/api/docs', (req, res) => {
   res.json({ service: 'FutureGuide - AI-Driven Student Guidance System', version: '1.0.0', routes: [
-    { name: 'Stream Selector', endpoints: ['GET /api/stream-selector', 'POST /api/stream-selector/assess'] },
-    { name: 'College Finder', endpoints: ['GET /api/college-finder', 'POST /api/college-finder/search'] },
-    { name: 'Learning Gap', endpoints: ['GET /api/learning-gap-analyser', 'POST /api/learning-gap-analyser/assess'] },
-    { name: 'Job Matcher', endpoints: ['GET /api/job-matcher', 'POST /api/job-matcher/search'] }
+    { name: 'Stream Selector', endpoints: ['GET /api/stream-selector', 'POST /api/stream-selector'] },
+    { name: 'College Finder', endpoints: ['GET /api/college-finder', 'POST /api/college-finder'] },
+    { name: 'Learning Gap', endpoints: ['GET /api/learning-gap-analyser', 'POST /api/learning-gap-analyser'] },
+    { name: 'Job Matcher', endpoints: ['GET /api/job-matcher', 'POST /api/job-matcher'] }
   ]});
 });
 

@@ -7,9 +7,27 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
-  <!-- GSAP for animations -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
+  <!-- GSAP: prefer local vendor if available, otherwise CDN -->
+  <script>
+    (function(){
+      var local = '/vendor/gsap.min.js';
+      var xhr = new XMLHttpRequest();
+      xhr.open('HEAD', local, true);
+      xhr.onreadystatechange = function(){
+        if (xhr.readyState === 4) {
+          var script = document.createElement('script');
+          script.defer = true;
+          script.src = (xhr.status === 200) ? local : 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js';
+          document.head.appendChild(script);
+          // ScrollTrigger plugin fallback (CDN)
+          var s2 = document.createElement('script'); s2.defer = true;
+          s2.src = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js';
+          document.head.appendChild(s2);
+        }
+      };
+      xhr.send();
+    })();
+  </script>
 </head>
 <body>
   <div class="site-wrapper">
@@ -23,9 +41,11 @@
           </div>
         </div>
         <nav class="nav">
-          <a href="#tools">Tools</a>
-          <a href="#features">Features</a>
-          <a href="#contact">Contact</a>
+          <a href="/">Home</a>
+          <a href="/tools/stream-selector.html">Stream Selector</a>
+          <a href="/tools/college-finder.html">College Finder</a>
+          <a href="/tools/learning-gap.html">Learning Gap</a>
+          <a href="/tools/job-matcher.html">Job Matcher</a>
           <button class="btn btn-cta" id="ctaTop">Try</button>
         </nav>
       </div>
@@ -39,7 +59,7 @@
             <p class="hero-lead">Discover the right stream, find colleges, map learning gaps, and get job matches tailored to you.</p>
             <div class="hero-actions">
               <button class="btn btn-primary" id="startNow">Get started</button>
-              <a class="hero-muted" href="#tools">Explore tools</a>
+              <a class="hero-muted" href="/tools/stream-selector.html">Try the Stream Selector</a>
             </div>
             <div class="trust-row">
               <div class="trust-pill">AI-driven</div>
@@ -98,10 +118,10 @@
       <section id="tools" class="container tools-section">
         <h3>Tools</h3>
         <div class="tools-grid">
-          <a class="tool glass" href="#">Stream Selector</a>
-          <a class="tool glass" href="#">College Finder</a>
-          <a class="tool glass" href="#">Learning Gap</a>
-          <a class="tool glass" href="#">Job Matcher</a>
+          <a class="tool glass" href="/tools/stream-selector.html">Stream Selector</a>
+          <a class="tool glass" href="/tools/college-finder.html">College Finder</a>
+          <a class="tool glass" href="/tools/learning-gap.html">Learning Gap</a>
+          <a class="tool glass" href="/tools/job-matcher.html">Job Matcher</a>
         </div>
       </section>
 

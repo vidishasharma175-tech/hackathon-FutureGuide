@@ -1,0 +1,7 @@
+{
+  "recommended": [
+    { "title": "Linear Algebra - Foundations", "note": "Cover matrices and eigenvalues" },
+    { "title": "Probability & Statistics", "note": "Emphasis on distributions and inference" }
+  ],
+  "details": "Suggested 8-week path focusing on fundamentals and practical assignments."
+}
