@@ -1,10 +1,6 @@
-/**
+/*
  * FutureGuide - Main Application Entry Point
- * AI-Driven Student Lifecycle Guidance System
- * 
- * Patent: System and Method for AI-Driven Academic Stream Selection,
- *         Institutional Matching, Career Readiness Assessment,
- *         and Learning Gap Remediation
+ * Enhanced to serve a polished frontend from /public
  */
 
 require('dotenv').config();
@@ -14,7 +10,7 @@ const cors = require('cors');
 const logger = require('./utils/logger');
 const { connectDB, disconnectDB } = require('./config/database');
 
-// Import API routes
+// API routers
 const streamSelectorRoutes = require('./api/stream-selector');
 const collegeFinderRoutes = require('./api/college-finder');
 const jobMatcherRoutes = require('./api/job-matcher');
@@ -23,12 +19,16 @@ const learningGapRoutes = require('./api/learning-gap-analyser');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors({
-  origin: (process.env.CORS_ORIGIN || 'http://localhost:3000').split(',')
-}));
+// Middlewares
+app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+// Serve static frontend from /public
+const path = require('path');
+const publicDir = path.join(__dirname, '..', 'public');
+app.use(express.static(publicDir));
+// Serve index.html for root
+app.get('/', (req, res) => res.sendFile(path.join(publicDir, 'index.html')));
 
 // Request logging
 app.use((req, res, next) => {
@@ -36,114 +36,49 @@ app.use((req, res, next) => {
   next();
 });
 
-// Health check endpoint
+// Health + docs
 app.get('/health', (req, res) => {
-  res.json({
-    status: 'operational',
-    service: 'FutureGuide',
-    timestamp: new Date().toISOString()
-  });
+  res.json({ status: 'operational', service: 'FutureGuide', timestamp: new Date().toISOString() });
 });
-
-// API Documentation
 app.get('/api/docs', (req, res) => {
-  res.json({
-    service: 'FutureGuide - AI-Driven Student Guidance System',
-    version: '1.0.0',
-    patent: 'System and Method for AI-Driven Academic Stream Selection, Institutional Matching, Career Readiness Assessment, and Learning Gap Remediation',
-    modules: [
-      {
-        name: 'Stream Selector (MCAME)',
-        endpoints: [
-          'GET /api/stream-selector/questionnaire',
-          'POST /api/stream-selector/assess'
-        ]
-      },
-      {
-        name: 'College Finder (APBCIME)',
-        endpoints: [
-          'POST /api/college-finder/match'
-        ]
-      },
-      {
-        name: 'Job Matcher (DACRAF)',
-        endpoints: [
-          'POST /api/job-matcher/assess'
-        ]
-      },
-      {
-        name: 'Learning Gap Analyser (LLGDRC)',
-        endpoints: [
-          'POST /api/learning-gap/analyze'
-        ]
-      }
-    ]
-  });
+  res.json({ service: 'FutureGuide - AI-Driven Student Guidance System', version: '1.0.0', routes: [
+    { name: 'Stream Selector', endpoints: ['GET /api/stream-selector', 'POST /api/stream-selector/assess'] },
+    { name: 'College Finder', endpoints: ['GET /api/college-finder', 'POST /api/college-finder/search'] },
+    { name: 'Learning Gap', endpoints: ['GET /api/learning-gap-analyser', 'POST /api/learning-gap-analyser/assess'] },
+    { name: 'Job Matcher', endpoints: ['GET /api/job-matcher', 'POST /api/job-matcher/search'] }
+  ]});
 });
 
-// Register API routes
+// Register API routers
 app.use('/api/stream-selector', streamSelectorRoutes);
 app.use('/api/college-finder', collegeFinderRoutes);
 app.use('/api/job-matcher', jobMatcherRoutes);
-app.use('/api/learning-gap', learningGapRoutes);
+app.use('/api/learning-gap-analyser', learningGapRoutes);
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    error: 'Endpoint not found',
-    availableEndpoints: {
-      health: 'GET /health',
-      docs: 'GET /api/docs'
-    }
-  });
+  res.status(404).json({ success: false, error: 'Endpoint not found', availableEndpoints: { health: '/health', docs: '/api/docs' } });
 });
 
 // Error handler
 app.use((err, req, res, next) => {
   logger.error('Unhandled error:', err);
-  res.status(err.status || 500).json({
-    success: false,
-    error: err.message || 'Internal server error'
-  });
+  res.status(err.status || 500).json({ success: false, error: err.message || 'Internal server error' });
 });
 
-/**
- * Start server
- */
+// Start server
 async function startServer() {
   try {
-    // Connect to database
     await connectDB();
-    logger.info('Database connected');
-
-    // Start Express server
     app.listen(PORT, () => {
-      logger.info(`🚀 FutureGuide server running on port ${PORT}`);
-      logger.info(`📖 API Documentation: http://localhost:${PORT}/api/docs`);
-      logger.info(`💚 Health check: http://localhost:${PORT}/health`);
+      logger.info(`FutureGuide server running on port ${PORT}`);
     });
-  } catch (error) {
-    logger.error('Failed to start server:', error);
+  } catch (err) {
+    logger.error('Failed to start server', err);
     process.exit(1);
   }
 }
 
-/**
- * Graceful shutdown
- */
-process.on('SIGINT', async () => {
-  logger.info('Shutting down gracefully...');
-  try {
-    await disconnectDB();
-    process.exit(0);
-  } catch (error) {
-    logger.error('Error during shutdown:', error);
-    process.exit(1);
-  }
-});
-
-// Start the application
 startServer();
 
 module.exports = app;
