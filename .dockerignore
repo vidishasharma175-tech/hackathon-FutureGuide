@@ -1,0 +1,11 @@
+# Ignore node modules and local files
+node_modules
+npm-debug.log
+.DS_Store
+.env
+.env.local
+.env.*.local
+.vscode
+.idea
+coverage
+public/vendor
