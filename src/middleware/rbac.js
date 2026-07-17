@@ -1,39 +1,18 @@
 /**
- * Role-Based Access Control — improved with JWT support and safe fallback.
+ * Basic Role-Based Access Control — Phase B (MVP / hackathon-demo grade).
  *
- * Behavior:
- * - If process.env.JWT_SECRET is set, tokens are expected to be signed JWTs
- *   and are verified using jsonwebtoken. encodeToken will sign JWTs as well.
- * - If JWT_SECRET is NOT set, the legacy base64-encoded JSON token behavior
- *   is used (with a console.warn). This preserves demo compatibility but is
- *   NOT secure — set JWT_SECRET in production.
+ * NOT production security: tokens are just base64-encoded JSON, not signed.
+ * Swap encodeToken/decodeToken for a real JWT library (e.g. jsonwebtoken)
+ * and add password hashing (bcrypt) in src/data/users.json / a real user store.
+ *
+ * Roles: student | parent | teacher | school_admin | admin
  */
 
-const jwt = require("jsonwebtoken");
-
-const SECRET = process.env.JWT_SECRET;
-const usingJwt = Boolean(SECRET);
-if (!usingJwt) {
-  console.warn("[rbac] JWT_SECRET not set — falling back to legacy base64 tokens. Set JWT_SECRET to enable signed JWTs.");
-}
-
 function encodeToken(payload) {
-  if (usingJwt) {
-    // short-lived token by default; adjust expiresIn as needed
-    return jwt.sign(payload, SECRET, { expiresIn: "7d" });
-  }
   return Buffer.from(JSON.stringify(payload)).toString("base64");
 }
 
 function decodeToken(token) {
-  if (!token) return null;
-  if (usingJwt) {
-    try {
-      return jwt.verify(token, SECRET);
-    } catch (e) {
-      return null;
-    }
-  }
   try {
     return JSON.parse(Buffer.from(token, "base64").toString("utf-8"));
   } catch (e) {
@@ -56,8 +35,6 @@ function attachUser(req, res, next) {
 /**
  * Route guard: requireRole('teacher', 'admin') allows only those roles through.
  * 'admin' is implicitly allowed on every guarded route.
- *
- * If called with no arguments (requireRole()), only 'admin' is allowed.
  */
 function requireRole(...roles) {
   return (req, res, next) => {
